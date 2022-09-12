@@ -2,4 +2,4 @@
 node_modules
 
 # compiled TypeScript code
-src/server.js
+build

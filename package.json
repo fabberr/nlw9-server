@@ -2,11 +2,11 @@
   "name": "nlw9-server",
   "version": "1.0.0",
   "description": "Backend server for NLW9's application.",
-  "main": "src/server.ts",
+  "main": "./build/server.js",
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "clean": "rm src/server.js",
+    "clean": "rm ./build/server.js",
     "rebuild": "npm run clean && npm run build"
   },
   "repository": {
