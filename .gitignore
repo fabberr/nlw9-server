@@ -1,1 +1,5 @@
+# node modules, install with `npm install`
 node_modules
+
+# compiled TypeScript code
+src/server.js

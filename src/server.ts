@@ -9,7 +9,7 @@ const app = express();
 // app.use(express.json());
 
 // add routes
-app.get('/', (request, response) => {
+app.get('/', (request: any, response: any) => {
     return response.send('iwtcits');
 });
 
