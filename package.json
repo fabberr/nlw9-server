@@ -11,5 +11,8 @@
     "url": "git+https://github.com/fabberr/nlw9-server.git"
   },
   "author": "Fabrício Milanez (https://github.com/fabberr)",
-  "license": "GPL-3.0"
+  "license": "GPL-3.0",
+  "dependencies": {
+    "express": "^4.18.1"
+  }
 }
