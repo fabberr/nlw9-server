@@ -6,11 +6,11 @@ const PORT      = process.env.PORT || 3333;
 
 // create Express application
 const app = express();
-// app.use(express.json());
+app.use(express.json());
 
 // add routes
 app.get('/', (request: any, response: any) => {
-    return response.send('iwtcits');
+    return response.json('iwtcits');
 });
 
 // listen for requests on specified PORT (or 3333)
@@ -25,4 +25,3 @@ const gracefulShutdown = () => {
 
 process.on('SIGINT',    gracefulShutdown);  // interrupt
 process.on('SIGTERM',   gracefulShutdown);  // terminate
-process.on('SIGUSR2',   gracefulShutdown);  // sent by nodemon - terminate
