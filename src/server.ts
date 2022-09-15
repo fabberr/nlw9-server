@@ -1,3 +1,4 @@
+// imports
 import express from 'express';
 
 // configuring environment
@@ -14,11 +15,11 @@ app.get('/', (request: any, response: any) => {
 });
 
 // listen for requests on specified PORT (or 3333)
-app.listen(PORT, () => console.log(`[nlw9-server] Listening for connections on http://${HOSTNAME}:${PORT}\n`));
+app.listen(PORT, () => console.log(`[nlw9-server] Listening for connections on: http://${HOSTNAME}:${PORT}`));
 
 // handle server shutdown signals
 const gracefulShutdown = () => {
-    console.log('[nlw9-server] Shutting down...\n');
+    console.log('\n[nlw9-server] Shutting down...');
     // ... shutdown DB and other services...
     process.exit(0);
 };
