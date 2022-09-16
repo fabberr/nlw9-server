@@ -58,27 +58,24 @@ app.patch('/ads/:id', async (request, response) => {
 
 app.get('/games/:id/ads', async (request, response) => {
 
-    // set query param flags, extract ad id
-    const dontIncludeMarkedForDeletion = request.query.deleted === undefined;
-    const id = request.params.id;
+    // checks whether `deleted` query param flag is present or not
+    const icludeMarkedForDeletion = request.query.deleted !== undefined;
     
-    // build WHERE clause object based on query params
-    let where_clause:any = { gameId: id };
-    if (dontIncludeMarkedForDeletion) {
-        where_clause = { ...where_clause, deleted: false };
-    }
-
     // fetch all ads for a given game id, optionally including entries marked for deletion
+    const id = request.params.id;
+    const gameId_equal_to_id: any = { gameId: id };         // WHERE gameId = $id
     const ads = await prisma.ads.findMany({
         // select all fields except discordUsername due to privacy concerns
         select: {
             id: true, gameId: true, name: true, yearsPlaying: true, weekdays: true, hourStart: true, hourEnd: true, useVoiceChat: true
         },
-        where: where_clause,
+        where: icludeMarkedForDeletion 
+            ? gameId_equal_to_id                          
+            : { ...gameId_equal_to_id, deleted: false },    // (optional) AND deleted = false
         orderBy: { createdAt: 'desc' }
     });
 
-    // check if any data is present in the filtered array
+    // check if any data is present
     if (ads.length) {
         // return the `ad.weekdays` comma-separated list as an array
         return response.status(200).json(ads.map(ad => {
