@@ -1,6 +1,7 @@
 // imports
 import express from 'express';
 import { PrismaClient } from '@prisma/client';
+import _ from 'lodash';
 
 // configuring environment
 const HOSTNAME  = process.env.HOSTNAME || 'localhost';
@@ -30,25 +31,56 @@ app.get('/games', async (request, response) => {
     return response.status(204).json();
 });
 
+app.patch('/ads/:id', async (request, response) => {
+
+    // fetch the ad and verify if the id is valid
+    const id = request.params.id;
+    const ad = await prisma.ads.findUnique({
+        select: { deleted: true },
+        where: { id: id } }
+    );
+    if (!ad) {
+        return response.status(404).json({ error: 'Ad not found' });
+    }
+
+    // toggle the ad's deleted status
+    const updatedAd = await prisma.ads.update({
+        data: { deleted: !ad.deleted },
+        where: { id: id }
+    });
+
+    // check the updated values against the originals to verify if the update was successful
+    if (_.isEqual(ad, updatedAd)) {
+        return response.status(500).json({ error: 'Could not update Ad.' });
+    }
+    return response.status(200).json(updatedAd);
+});
+
 app.get('/games/:id/ads', async (request, response) => {
 
-    // fetch all ads for a given game id, excluding the ones marked as deleted, most recent ads first
-    const gameId = request.params.id;
+    // set query param flags, extract ad id
+    const dontIncludeMarkedForDeletion = request.query.deleted === undefined;
+    const id = request.params.id;
+    
+    // build WHERE clause object based on query params
+    let where_clause:any = { gameId: id };
+    if (dontIncludeMarkedForDeletion) {
+        where_clause = { ...where_clause, deleted: false };
+    }
+
+    // fetch all ads for a given game id, optionally including entries marked for deletion
     const ads = await prisma.ads.findMany({
         // select all fields except discordUsername due to privacy concerns
         select: {
             id: true, gameId: true, name: true, yearsPlaying: true, weekdays: true, hourStart: true, hourEnd: true, useVoiceChat: true
         },
-        where: {
-            gameId: gameId,
-            deleted: false
-        },
+        where: where_clause,
         orderBy: { createdAt: 'desc' }
     });
 
-    // check if any data was returned
+    // check if any data is present in the filtered array
     if (ads.length) {
-        // return the ad.weekdays comma-separated list as an array
+        // return the `ad.weekdays` comma-separated list as an array
         return response.status(200).json(ads.map(ad => {
             return {
                 ...ad,
