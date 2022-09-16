@@ -11,7 +11,34 @@ datasource db {
 }
 
 model Game {
+  // entity fields
   id       String @id
   name     String
   coverURL String
+
+  // meta fields
+  deleted Boolean // if set to `true`, the server will not include this record in any queries
+
+  // relations
+  ads Ads[]
+}
+
+model Ads {
+  // entity fields
+  id              String   @id
+  gameId          String
+  name            String
+  yearsPlaying    Int      @default(0)
+  discordUsername String
+  weekdays        String
+  hourStart       Int
+  hourEnd         Int
+  useVoiceChat    Boolean
+  createdAt       DateTime @default(now())
+
+  // meta fields
+  deleted Boolean // if set to `true`, the server will not include this record in any queries
+
+  // relations
+  game Game @relation(fields: [gameId], references: [id])
 }
