@@ -2,6 +2,7 @@
 
 // 3rd-party
 import express from 'express';
+import cors from 'cors';
 import { PrismaClient } from '@prisma/client';
 import _ from 'lodash';
 
@@ -14,9 +15,11 @@ import * as utils from './utils/utility';
 const HOSTNAME  = process.env.HOSTNAME || 'localhost';
 const PORT      = process.env.PORT || 3333;
 
-// create Express application
+// create Express application, configure Cross-Origin Resource Sharing
 const app = express();
 app.use(express.json());
+
+app.use(cors()); // Accepts all origns (public API [!]), add domain whitelist in production build!
 
 // connect to DB using Prisma
 const prisma = new PrismaClient();
