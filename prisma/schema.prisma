@@ -12,12 +12,9 @@ datasource db {
 
 model Game {
   // entity fields
-  id       String @id
+  id       String @id @default(uuid())
   name     String
   coverURL String
-
-  // meta fields
-  deleted Boolean // if set to `true`, the server will not include this record in any queries
 
   // relations
   ads Ads[]
