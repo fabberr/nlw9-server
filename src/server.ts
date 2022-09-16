@@ -1,9 +1,14 @@
-// imports
+/********** Module Imports **********/
+
+// 3rd-party
 import express from 'express';
 import { PrismaClient } from '@prisma/client';
 import _ from 'lodash';
 
+// internal
 import * as utils from './utils/utility';
+
+/********** App Configuration **********/
 
 // configuring environment
 const HOSTNAME  = process.env.HOSTNAME || 'localhost';
@@ -16,7 +21,9 @@ app.use(express.json());
 // connect to DB using Prisma
 const prisma = new PrismaClient();
 
-// add routes
+/********** API Endpoints for `games` Resource **********/
+
+/** Fetch all games */
 app.get('/games', async (request, response) => {
 
     // fetch all games, including a count of ads for each game
@@ -33,6 +40,9 @@ app.get('/games', async (request, response) => {
     return response.status(204).json();
 });
 
+/********** API Endpoints for `ads` Resource **********/
+
+/** CRUD: Create ad */
 app.post('/games/:id/ads', async (request, response) => {
 
     // extract data that doesn't need to be converted from request
@@ -59,6 +69,7 @@ app.post('/games/:id/ads', async (request, response) => {
     return response.status(500).json({ error: 'Cannot create ad entity' });
 });
 
+/** CRUD: Fetch all ads */
 app.get('/ads', async (request, response) => {
 
     // checks whether `deleted` query param flag is present or not
@@ -90,6 +101,7 @@ app.get('/ads', async (request, response) => {
     return response.status(204).json();
 });
 
+/** Toggle ad marked for deletion */
 app.patch('/ads/:id', async (request, response) => {
 
     // fetch the ad and verify if the id is valid
@@ -115,6 +127,7 @@ app.patch('/ads/:id', async (request, response) => {
     return response.status(200).json(updatedAd);
 });
 
+/** Fetch ads by game */
 app.get('/games/:id/ads', async (request, response) => {
 
     // checks whether `deleted` query param flag is present or not
@@ -147,6 +160,7 @@ app.get('/games/:id/ads', async (request, response) => {
     return response.status(204).json();
 });
 
+/** Fetch Discord username for ad */
 app.get('/ads/:id/discord', async (request, response) => {
 
     // fetch the discord username for a given ad
@@ -161,6 +175,8 @@ app.get('/ads/:id/discord', async (request, response) => {
     }
     return response.status(204).json();
 });
+
+/********** Start/Shutdown Server Handlers **********/
 
 // listen for requests on specified PORT (or 3333)
 app.listen(PORT, () => console.log(`[nlw9-server] Listening for connections on: http://${HOSTNAME}:${PORT}`));
