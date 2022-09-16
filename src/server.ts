@@ -16,12 +16,14 @@ const prisma = new PrismaClient();
 // add routes
 app.get('/games', async (request, response) => {
 
+    // fetch all games, including a count of ads for each game
     const games = await prisma.game.findMany({
         select: {
             id: true, name: true, coverURL: true, _count: { select: { ads: true } }
         }
     });
 
+    // check if any data was returned
     if (games.length) {
         return response.status(200).json(games);
     }
@@ -30,9 +32,10 @@ app.get('/games', async (request, response) => {
 
 app.get('/games/:id/ads', async (request, response) => {
 
-    // extract params and make DB query
+    // fetch all ads for a given game id, excluding the ones marked as deleted, most recent ads first
     const gameId = request.params.id;
     const ads = await prisma.ads.findMany({
+        // select all fields except discordUsername due to privacy concerns
         select: {
             id: true, gameId: true, name: true, yearsPlaying: true, weekdays: true, hourStart: true, hourEnd: true, useVoiceChat: true
         },
@@ -45,13 +48,28 @@ app.get('/games/:id/ads', async (request, response) => {
 
     // check if any data was returned
     if (ads.length) {
-        // return ad.weekdays comma-separated list as an array
+        // return the ad.weekdays comma-separated list as an array
         return response.status(200).json(ads.map(ad => {
             return {
                 ...ad,
                 weekdays: ad.weekdays.split(',')
             };
         }));
+    }
+    return response.status(204).json();
+});
+
+app.get('/ads/:id/discord', async (request, response) => {
+
+    // fetch the discord username for a given ad
+    const adId = request.params.id;
+    const username = await prisma.ads.findUnique({
+        select: { discordUsername: true },
+        where: { id: adId }
+    });
+
+    if (username) {
+        return response.status(200).json(username);
     }
     return response.status(204).json();
 });
