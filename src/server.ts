@@ -47,13 +47,14 @@ app.post('/games/:id/ads', async (request, response) => {
 
     // extract data that doesn't need to be converted from request
     const gameId = request.params.id;
-    const { name, yearsPlaying, discordUsername, useVoiceChat } = request.body;
+    const body = request.body;
+    const { name, yearsPlaying, discordUsername, useVoiceChat } = body;
 
     // convert weekdays array into a comma-separated list
-    const weekdays = request.body.weekdays.join(',');
+    const weekdays = body.weekdays.join(',');
 
     // convert hourStart and hourEnd strings into minutes
-    const [hourStart, hourEnd] = [request.body.hourStart, request.body.hourEnd].map(utils.convertHoursToMinutes);
+    const [hourStart, hourEnd] = [body.hourStart, body.hourEnd].map(utils.convertHourStringToMinutes);
 
     // isnert new ad entity on DB
     const ad = await prisma.ads.create({
@@ -94,7 +95,9 @@ app.get('/ads', async (request, response) => {
         return response.status(200).json(ads.map(ad => {
             return {
                 ...ad,
-                weekdays: ad.weekdays.split(',')
+                weekdays: ad.weekdays.split(','),
+                hourStart: utils.convetMinutesToHourString(ad.hourStart),
+                hourEnd: utils.convetMinutesToHourString(ad.hourEnd)
             };
         }));
     }
@@ -153,7 +156,9 @@ app.get('/games/:id/ads', async (request, response) => {
         return response.status(200).json(ads.map(ad => {
             return {
                 ...ad,
-                weekdays: ad.weekdays.split(',')
+                weekdays: ad.weekdays.split(','),
+                hourStart: utils.convetMinutesToHourString(ad.hourStart),
+                hourEnd: utils.convetMinutesToHourString(ad.hourEnd)
             };
         }));
     }
