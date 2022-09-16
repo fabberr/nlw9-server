@@ -34,7 +34,7 @@ model Ads {
   createdAt       DateTime @default(now())
 
   // meta fields
-  deleted Boolean // if set to `true`, the server will not include this record in any queries
+  deleted Boolean @default(false) // if set to `true`, the server will not include this record in any queries
 
   // relations
   game Game @relation(fields: [gameId], references: [id])
