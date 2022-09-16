@@ -3,6 +3,8 @@ import express from 'express';
 import { PrismaClient } from '@prisma/client';
 import _ from 'lodash';
 
+import * as utils from './utils/utility';
+
 // configuring environment
 const HOSTNAME  = process.env.HOSTNAME || 'localhost';
 const PORT      = process.env.PORT || 3333;
@@ -27,6 +29,63 @@ app.get('/games', async (request, response) => {
     // check if any data was returned
     if (games.length) {
         return response.status(200).json(games);
+    }
+    return response.status(204).json();
+});
+
+app.post('/games/:id/ads', async (request, response) => {
+
+    // extract data that doesn't need to be converted from request
+    const gameId = request.params.id;
+    const { name, yearsPlaying, discordUsername, useVoiceChat } = request.body;
+
+    // convert weekdays array into a comma-separated list
+    const weekdays = request.body.weekdays.join(',');
+
+    // convert hourStart and hourEnd strings into minutes
+    const [hourStart, hourEnd] = [request.body.hourStart, request.body.hourEnd].map(utils.convertHoursToMinutes);
+
+    // isnert new ad entity on DB
+    const ad = await prisma.ads.create({
+        data: {
+            gameId, name, yearsPlaying, discordUsername, weekdays, hourStart, hourEnd, useVoiceChat
+        }
+    });
+
+    // check if insert was successful
+    if (ad.id) {
+        return response.status(201).json(ad);
+    }
+    return response.status(500).json({ error: 'Cannot create ad entity' });
+});
+
+app.get('/ads', async (request, response) => {
+
+    // checks whether `deleted` query param flag is present or not
+    const icludeMarkedForDeletion = request.query.deleted !== undefined;
+    
+    // fetch all ads for a given game id, optionally including entries marked for deletion
+    const no_filters: any = { };                    // no filters
+    const ads = await prisma.ads.findMany({
+        // select all fields except discordUsername due to privacy concerns
+        select: {
+            id: true, gameId: true, name: true, yearsPlaying: true, weekdays: true, hourStart: true, hourEnd: true, useVoiceChat: true
+        },
+        where: icludeMarkedForDeletion 
+            ? no_filters                          
+            : { ...no_filters, deleted: false },    // (optional) WHERE deleted = false
+        orderBy: { createdAt: 'desc' }
+    });
+
+    // check if any data is present
+    if (ads.length) {
+        // return the `ad.weekdays` comma-separated list as an array
+        return response.status(200).json(ads.map(ad => {
+            return {
+                ...ad,
+                weekdays: ad.weekdays.split(',')
+            };
+        }));
     }
     return response.status(204).json();
 });
