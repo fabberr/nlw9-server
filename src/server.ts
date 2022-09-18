@@ -187,7 +187,7 @@ app.get('/ads/:id/discord', async (request, response) => {
 /********** Start/Shutdown Server Handlers **********/
 
 // listen for requests on specified PORT (or 3333)
-app.listen(PORT, () => console.log(`[nlw9-server] Listening for connections on: http://${HOSTNAME}:${PORT}`));
+app.listen(PORT, () => console.log(`[nlw9-server] Listening for connections on http://${HOSTNAME}:${PORT}`));
 
 // handle server shutdown signals
 const gracefulShutdown = () => {
@@ -198,3 +198,9 @@ const gracefulShutdown = () => {
 
 process.on('SIGINT',    gracefulShutdown);  // interrupt
 process.on('SIGTERM',   gracefulShutdown);  // terminate
+
+/** @todo move endpoint declarations to a separate module */
+/** @todo validade incoming requests (use zod npm package) */
+/** @todo add missing endpoints (check Insomnia) */
+/** @todo additional filtering options to relevant fetch endpoints */
+/** @todo add optional paging to relevant fetch endpoints */
